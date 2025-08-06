@@ -6,7 +6,8 @@ import review_icon from "../assets/reviewicon.png"
 
 const Dealers = () => {
   const [dealersList, setDealersList] = useState([]);
-  // let [state, setState] = useState("")
+  const [allDealers, setAllDealers] = useState([]);
+  const [searchText, setSearchText] = useState("");
   let [states, setStates] = useState([])
 
   // let root_url = window.location.origin
@@ -26,6 +27,20 @@ const Dealers = () => {
     }
   }
 
+  const filterDealersBySearch = (searchValue) => {
+    setSearchText(searchValue);
+    if (searchValue === "") {
+      setDealersList(allDealers);
+    } else {
+      const filtered = allDealers.filter(dealer => 
+        dealer.state.toLowerCase().includes(searchValue.toLowerCase()) ||
+        dealer.city.toLowerCase().includes(searchValue.toLowerCase()) ||
+        dealer.full_name.toLowerCase().includes(searchValue.toLowerCase())
+      );
+      setDealersList(filtered);
+    }
+  }
+
   const get_dealers = async ()=>{
     const res = await fetch(dealer_url, {
       method: "GET"
@@ -39,6 +54,7 @@ const Dealers = () => {
       });
 
       setStates(Array.from(new Set(states)))
+      setAllDealers(all_dealers)
       setDealersList(all_dealers)
     }
   }
@@ -60,14 +76,13 @@ return(
       <th>Address</th>
       <th>Zip</th>
       <th>
-      <select name="state" id="state" onChange={(e) => filterDealers(e.target.value)}>
-      <option value="" selected disabled hidden>State</option>
-      <option value="All">All States</option>
-      {states.map(state => (
-          <option value={state}>{state}</option>
-      ))}
-      </select>        
-
+        <input 
+          type="text" 
+          placeholder="Search by state, city, or dealer name" 
+          value={searchText}
+          onChange={(e) => filterDealersBySearch(e.target.value)}
+          className="search-input"
+        />
       </th>
       {isLoggedIn ? (
           <th>Review Dealer</th>
